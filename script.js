@@ -1,33 +1,32 @@
 const player = document.getElementById("player");
-const gameContainer = document.querySelector(".game-container");
-const scoreDisplay = document.getElementById("score");
-const gameOverScreen = document.getElementById("gameOverScreen");
+const scoreEl = document.getElementById("score");
+const gameOverScreen = document.getElementById("gameOver");
 
+let lane = 1; // 0 left, 1 center, 2 right
 let score = 0;
-let isJumping = false;
+let speed = 6;
 let gameRunning = true;
-let obstacles = [];
 
-function jump() {
-    if (isJumping) return;
-    isJumping = true;
+const lanes = [
+    window.innerWidth / 6,
+    window.innerWidth / 2 - 30,
+    window.innerWidth - window.innerWidth / 6 - 60
+];
 
-    let jumpHeight = 0;
-    let upInterval = setInterval(() => {
-        if (jumpHeight >= 120) {
-            clearInterval(upInterval);
-            let downInterval = setInterval(() => {
-                if (jumpHeight <= 0) {
-                    clearInterval(downInterval);
-                    isJumping = false;
-                }
-                jumpHeight -= 5;
-                player.style.bottom = 100 + jumpHeight + "px";
-            }, 20);
-        }
-        jumpHeight += 5;
-        player.style.bottom = 100 + jumpHeight + "px";
-    }, 20);
+function updatePlayerPosition() {
+    player.style.left = lanes[lane] + "px";
+}
+
+updatePlayerPosition();
+
+function moveLeft() {
+    if (lane > 0) lane--;
+    updatePlayerPosition();
+}
+
+function moveRight() {
+    if (lane < 2) lane++;
+    updatePlayerPosition();
 }
 
 function createObstacle() {
@@ -35,25 +34,26 @@ function createObstacle() {
 
     const obstacle = document.createElement("div");
     obstacle.classList.add("obstacle");
-    obstacle.style.left = Math.random() * (window.innerWidth - 50) + "px";
 
-    gameContainer.appendChild(obstacle);
-    obstacles.push(obstacle);
+    let obstacleLane = Math.floor(Math.random() * 3);
+    obstacle.style.left = lanes[obstacleLane] + "px";
 
-    let obstaclePosition = -60;
+    document.querySelector(".game").appendChild(obstacle);
 
-    const moveInterval = setInterval(() => {
+    let position = -80;
+
+    const interval = setInterval(() => {
         if (!gameRunning) {
-            clearInterval(moveInterval);
+            clearInterval(interval);
             obstacle.remove();
             return;
         }
 
-        obstaclePosition += 6;
-        obstacle.style.top = obstaclePosition + "px";
+        position += speed;
+        obstacle.style.top = position + "px";
 
-        let playerRect = player.getBoundingClientRect();
-        let obstacleRect = obstacle.getBoundingClientRect();
+        const playerRect = player.getBoundingClientRect();
+        const obstacleRect = obstacle.getBoundingClientRect();
 
         if (
             playerRect.left < obstacleRect.right &&
@@ -64,11 +64,12 @@ function createObstacle() {
             gameOver();
         }
 
-        if (obstaclePosition > window.innerHeight) {
-            clearInterval(moveInterval);
+        if (position > window.innerHeight) {
+            clearInterval(interval);
             obstacle.remove();
             score++;
-            scoreDisplay.innerText = "Score: " + score;
+            speed += 0.2;
+            scoreEl.innerText = score;
         }
     }, 20);
 }
@@ -78,13 +79,20 @@ function gameOver() {
     gameOverScreen.classList.remove("hidden");
 }
 
-function restartGame() {
+function restart() {
     location.reload();
 }
 
-document.addEventListener("touchstart", jump);
-document.addEventListener("keydown", (e) => {
-    if (e.code === "Space") jump();
+let touchStartX = 0;
+
+document.addEventListener("touchstart", e => {
+    touchStartX = e.touches[0].clientX;
 });
 
-setInterval(createObstacle, 1500);
+document.addEventListener("touchend", e => {
+    let touchEndX = e.changedTouches[0].clientX;
+    if (touchStartX - touchEndX > 50) moveLeft();
+    if (touchEndX - touchStartX > 50) moveRight();
+});
+
+setInterval(createObstacle, 1200);
