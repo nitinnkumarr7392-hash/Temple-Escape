@@ -1,23 +1,33 @@
-body{
-  margin:0;
-  font-family:sans-serif;
-  background:#111;
-  color:white;
-  text-align:center;
+body {
+    margin: 0;
+    overflow: hidden;
+    font-family: Arial, sans-serif;
+    background: linear-gradient(to bottom, #4facfe, #00f2fe);
+    text-align: center;
 }
 
-canvas{
-  background:linear-gradient(#3a7bd5,#3a6073);
-  display:block;
-  margin:auto;
-  border:3px solid white;
+canvas {
+    display: none;
+    background: #222;
 }
 
-button{
-  padding:10px 20px;
-  font-size:18px;
-  border:none;
-  border-radius:6px;
-  background:#ff9800;
-  color:white;
+#menu, #gameOver {
+    position: absolute;
+    width: 100%;
+    top: 30%;
+    color: white;
+}
+
+button {
+    padding: 10px 20px;
+    font-size: 18px;
+    border: none;
+    border-radius: 8px;
+    background: orange;
+    color: white;
+    cursor: pointer;
+}
+
+.hidden {
+    display: none;
 }
