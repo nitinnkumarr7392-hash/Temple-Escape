@@ -1,28 +1,25 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Jungle Dash Pro</title>
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sky Rush Runner</title>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<div id="startScreen">
-  <h1>Jungle Dash</h1>
-  <input id="playerName" placeholder="Enter Name">
-  <button onclick="startGame()">Start Game</button>
+<div id="menu">
+    <h1>Sky Rush Runner</h1>
+    <button onclick="startGame()">Start Game</button>
+    <p>High Score: <span id="highScore">0</span></p>
 </div>
 
-<div id="gameContainer" style="display:none;">
-  <div id="hud">
-    <span id="score">Score: 0</span>
-  </div>
-  <canvas id="gameCanvas" width="480" height="600"></canvas>
-</div>
+<canvas id="gameCanvas"></canvas>
 
-<div id="gameOver" style="display:none;">
-  <h2>Game Over</h2>
-  <p id="finalScore"></p>
-  <button onclick="restartGame()">Play Again</button>
+<div id="gameOver" class="hidden">
+    <h2>Game Over</h2>
+    <p>Score: <span id="finalScore"></span></p>
+    <button onclick="restartGame()">Restart</button>
 </div>
 
 <script src="script.js"></script>
