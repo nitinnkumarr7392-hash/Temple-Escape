@@ -1,67 +1,73 @@
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
-let playerName = "";
-let score = 0;
-let speed = 5;
-let gravity = 0.8;
 let gameRunning = false;
+let score = 0;
+let speed = 6;
+let gravity = 0.8;
+
+const lanes = [140, 240, 340];
 
 let player = {
-  x: 100,
-  y: 500,
-  width: 40,
-  height: 40,
-  dy: 0,
-  jumping: false
+  lane:1,
+  x:lanes[1],
+  y:500,
+  width:40,
+  height:60,
+  dy:0,
+  jumping:false
 };
 
 let obstacles = [];
-let coins = [];
 
 function startGame(){
-  playerName = document.getElementById("playerName").value.trim();
-  if(playerName === "") return alert("Enter Name");
-
-  document.getElementById("startScreen").style.display = "none";
-  document.getElementById("gameUI").style.display = "block";
-
+  document.getElementById("startScreen").style.display="none";
+  document.getElementById("gameContainer").style.display="block";
   resetGame();
-  gameRunning = true;
+  gameRunning=true;
   gameLoop();
 }
 
 function resetGame(){
-  score = 0;
-  speed = 5;
-  obstacles = [];
-  coins = [];
-  player.y = 500;
+  score=0;
+  speed=6;
+  obstacles=[];
+  player.lane=1;
+  player.x=lanes[1];
+  player.y=500;
 }
 
 function restartGame(){
-  document.getElementById("gameOverScreen").style.display = "none";
-  document.getElementById("gameUI").style.display = "block";
+  document.getElementById("gameOver").style.display="none";
+  document.getElementById("gameContainer").style.display="block";
   resetGame();
-  gameRunning = true;
+  gameRunning=true;
   gameLoop();
 }
 
-document.addEventListener("keydown", e => {
-  if(e.code === "ArrowUp" && !player.jumping){
-    player.dy = -15;
-    player.jumping = true;
+document.addEventListener("keydown", e=>{
+  if(e.code==="ArrowLeft" && player.lane>0){
+    player.lane--;
   }
-  if(e.code === "ArrowLeft") player.x -= 30;
-  if(e.code === "ArrowRight") player.x += 30;
+  if(e.code==="ArrowRight" && player.lane<2){
+    player.lane++;
+  }
+  if(e.code==="ArrowUp" && !player.jumping){
+    player.dy=-15;
+    player.jumping=true;
+  }
 });
 
-function spawnObjects(){
-  if(Math.random() < 0.02){
-    obstacles.push({x:480, y:520, width:30, height:40});
-  }
-  if(Math.random() < 0.015){
-    coins.push({x:480, y:450, width:20, height:20});
+function spawnObstacle(){
+  if(Math.random()<0.02){
+    let lane=Math.floor(Math.random()*3);
+    obstacles.push({
+      lane:lane,
+      x:lanes[lane],
+      y:-60,
+      width:40,
+      height:60
+    });
   }
 }
 
@@ -69,32 +75,30 @@ function update(){
   if(!gameRunning) return;
 
   score++;
-  if(score % 500 === 0) speed++;
+  if(score%800===0) speed+=0.5;
 
-  player.dy += gravity;
-  player.y += player.dy;
+  player.x += (lanes[player.lane]-player.x)*0.2;
 
-  if(player.y >= 500){
-    player.y = 500;
-    player.jumping = false;
+  player.dy+=gravity;
+  player.y+=player.dy;
+
+  if(player.y>=500){
+    player.y=500;
+    player.jumping=false;
+    player.dy=0;
   }
 
   obstacles.forEach((obs,i)=>{
-    obs.x -= speed;
-    if(collision(player,obs)) endGame();
-    if(obs.x < -50) obstacles.splice(i,1);
-  });
-
-  coins.forEach((coin,i)=>{
-    coin.x -= speed;
-    if(collision(player,coin)){
-      score += 50;
-      coins.splice(i,1);
+    obs.y+=speed;
+    if(collision(player,obs)){
+      endGame();
     }
-    if(coin.x < -50) coins.splice(i,1);
+    if(obs.y>650){
+      obstacles.splice(i,1);
+    }
   });
 
-  spawnObjects();
+  spawnObstacle();
 }
 
 function collision(a,b){
@@ -109,20 +113,22 @@ function collision(a,b){
 function draw(){
   ctx.clearRect(0,0,480,600);
 
-  ctx.fillStyle="green";
-  ctx.fillRect(0,550,480,50);
+  ctx.fillStyle="#222";
+  ctx.fillRect(100,0,280,600);
+
+  ctx.fillStyle="white";
+  ctx.fillRect(200,0,4,600);
+  ctx.fillRect(300,0,4,600);
 
   ctx.fillStyle="red";
   ctx.fillRect(player.x,player.y,player.width,player.height);
 
   ctx.fillStyle="black";
-  obstacles.forEach(obs=>ctx.fillRect(obs.x,obs.y,obs.width,obs.height));
-
-  ctx.fillStyle="yellow";
-  coins.forEach(coin=>ctx.fillRect(coin.x,coin.y,coin.width,coin.height));
+  obstacles.forEach(obs=>{
+    ctx.fillRect(obs.x,obs.y,obs.width,obs.height);
+  });
 
   document.getElementById("score").innerText="Score: "+score;
-  document.getElementById("speed").innerText="Speed: "+speed;
 }
 
 function gameLoop(){
@@ -133,28 +139,7 @@ function gameLoop(){
 
 function endGame(){
   gameRunning=false;
-  saveScore();
-  document.getElementById("gameUI").style.display="none";
-  document.getElementById("gameOverScreen").style.display="block";
-  document.getElementById("finalScore").innerText="Your Score: "+score;
-  loadLeaderboard();
-}
-
-function saveScore(){
-  let scores = JSON.parse(localStorage.getItem("jungleDash")) || [];
-  scores.push({name:playerName,score:score});
-  scores.sort((a,b)=>b.score-a.score);
-  scores = scores.slice(0,5);
-  localStorage.setItem("jungleDash",JSON.stringify(scores));
-}
-
-function loadLeaderboard(){
-  let scores = JSON.parse(localStorage.getItem("jungleDash")) || [];
-  let list = document.getElementById("leaderboard");
-  list.innerHTML="";
-  scores.forEach(s=>{
-    let li=document.createElement("li");
-    li.innerText=s.name+" - "+s.score;
-    list.appendChild(li);
-  });
+  document.getElementById("gameContainer").style.display="none";
+  document.getElementById("gameOver").style.display="block";
+  document.getElementById("finalScore").innerText="Score: "+score;
 }
