@@ -1,31 +1,27 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8">
-  <title>Jungle Dash</title>
+  <title>Jungle Dash Pro</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
 <div id="startScreen">
   <h1>Jungle Dash</h1>
-  <input type="text" id="playerName" placeholder="Enter Your Name">
+  <input id="playerName" placeholder="Enter Name">
   <button onclick="startGame()">Start Game</button>
 </div>
 
-<div id="gameUI" style="display:none;">
-  <div id="topBar">
+<div id="gameContainer" style="display:none;">
+  <div id="hud">
     <span id="score">Score: 0</span>
-    <span id="speed">Speed: 5</span>
   </div>
   <canvas id="gameCanvas" width="480" height="600"></canvas>
 </div>
 
-<div id="gameOverScreen" style="display:none;">
+<div id="gameOver" style="display:none;">
   <h2>Game Over</h2>
   <p id="finalScore"></p>
-  <h3>Leaderboard</h3>
-  <ul id="leaderboard"></ul>
   <button onclick="restartGame()">Play Again</button>
 </div>
 
