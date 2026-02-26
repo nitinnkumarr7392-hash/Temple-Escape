@@ -3,22 +3,23 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Temple Escape</title>
+<title>Temple Jungle Run</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
 <div class="game">
 
-    <div class="score">Score: <span id="score">0</span></div>
-
-    <div class="track"></div>
+    <div class="ui">
+        <div>Score: <span id="score">0</span></div>
+        <div>Coins: <span id="coins">0</span></div>
+    </div>
 
     <div id="player"></div>
 
     <div id="gameOver" class="hidden">
         <h1>Game Over</h1>
-        <button onclick="restart()">Restart</button>
+        <button onclick="restartGame()">Restart</button>
     </div>
 
 </div>
